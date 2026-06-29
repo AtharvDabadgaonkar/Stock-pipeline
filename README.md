@@ -35,10 +35,6 @@ yfinance (Python)  ->  pandas clean  ->  PostgreSQL  ->  dbt transforms  ->  SQL
 - Docker Desktop installed and running
 - Python 3 installed (`python3 --version` to check)
 
-> 💡 **Using Claude Code?** Just open this folder in Claude Code and say:
-> *"Read the README and walk me through running this project step by step,
-> running each command and fixing any errors."* It can do all the steps below for you.
-
 ---
 
 ### DAY 1 — Extract + Load
@@ -149,26 +145,6 @@ just automated. It's scheduled to repeat once every day after that.
 
 ✅ **Day 3 complete — the pipeline now runs itself.**
 
----
 
-## How to talk about this project (resume/interview)
-> "I built an end-to-end ETL pipeline that extracts daily stock data via a
-> Python API, lands it in a Dockerized PostgreSQL database, and uses dbt to
-> transform raw prices into analytical metrics like daily returns, 7-day
-> moving averages, and volatility — following the modern staging/marts
-> pattern — and orchestrated the whole thing with Apache Airflow running
-> on a daily schedule."
-
-## Future improvements (mention these — shows you know what's next)
-- Add more stocks, or enrich with a second source (e.g. company sector)
-- Add a **Streamlit** or **Metabase** dashboard on top of `daily_metrics`
-- Add dbt tests (not null, unique) and incremental models
-- Swap Airflow's SQLite/SequentialExecutor setup for Postgres + LocalExecutor (the current setup is dev-only, by design — see the warning banners in the Airflow UI)
-
-## Common issues
-- **`docker compose` not found** → make sure Docker Desktop is open/running.
-- **Python can't connect to Postgres** → wait a few seconds after `docker compose up`; the DB needs a moment to start.
-- **`role "stock_user" does not exist`** → something else (often a local Postgres install) is already listening on port 5432 and intercepting the connection. Check with `lsof -i :5432`; this project defaults to host port 5433 to avoid the conflict.
-- **dbt can't find profile** → make sure you copied `profiles.yml` to `~/.dbt/`.
 - **Airflow `extract_load` task stuck in `up_for_retry`** → check its logs in the UI. A common cause: `to_sql(if_exists="replace")` tries to `DROP TABLE raw_prices`, which fails once dbt has built views on top of it — this project truncates instead of dropping, to avoid that.
 - Stuck on anything → paste the error into Claude Code and let it fix it.
