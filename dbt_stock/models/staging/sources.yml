@@ -1,0 +1,14 @@
+# models/staging/sources.yml
+# -------------------------------------------------------------
+# Tells dbt that the 'raw_prices' table (created by your Python
+# script) exists. This lets you reference it cleanly with
+# {{ source('raw', 'raw_prices') }} in your SQL.
+# -------------------------------------------------------------
+
+version: 2
+
+sources:
+  - name: raw
+    schema: public
+    tables:
+      - name: raw_prices

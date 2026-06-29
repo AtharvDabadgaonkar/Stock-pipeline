@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# dbt
+dbt_stock/target/
+dbt_stock/logs/
+dbt_stock/dbt_packages/
+
+# macOS
+.DS_Store
+
+# Airflow (local-only data, generated at runtime — not the DAG code itself)
+airflow_home/
+*.log
+
+# Env / secrets, in case you ever move real credentials into one
+.env

@@ -1,0 +1,18 @@
+# dbt_project.yml
+# -------------------------------------------------------------
+# The main config file for dbt. It tells dbt the project name
+# and where your models live.
+# -------------------------------------------------------------
+
+name: 'dbt_stock'
+version: '1.0.0'
+profile: 'dbt_stock'        # must match the name in profiles.yml
+
+model-paths: ["models"]      # dbt looks here for your .sql model files
+
+models:
+  dbt_stock:
+    staging:
+      +materialized: view    # staging models = lightweight SQL views
+    marts:
+      +materialized: table   # marts = saved tables (the final results)

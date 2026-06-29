@@ -1,0 +1,28 @@
+# profiles.yml
+# -------------------------------------------------------------
+# This tells dbt HOW to connect to your Postgres database.
+#
+# IMPORTANT: dbt normally looks for this file at  ~/.dbt/profiles.yml
+# So after editing, copy it there:
+#     mkdir -p ~/.dbt
+#     cp profiles.yml ~/.dbt/profiles.yml
+#
+# (Claude Code can do this step for you.)
+# These values match docker-compose.yml.
+# -------------------------------------------------------------
+
+# host/port can be overridden with DB_HOST/DB_PORT env vars:
+#   - running by hand on your Mac           -> defaults (localhost:5433)
+#   - running inside the Airflow container  -> DB_HOST=postgres DB_PORT=5432
+dbt_stock:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DB_HOST', 'localhost') }}"
+      port: "{{ env_var('DB_PORT', '5433') | as_number }}"
+      user: stock_user
+      password: stock_pass
+      dbname: stock_db
+      schema: public      # where dbt will build your models
+      threads: 1

@@ -1,0 +1,55 @@
+# docker-compose.yml
+# ---------------------------------------------------------------
+# This file tells Docker to run:
+#   1. postgres -> the database that stores your stock data
+#   2. airflow  -> schedules extract_load.py + dbt run automatically
+#
+# To start everything:   docker compose up -d
+# To stop:                docker compose down
+# To stop AND erase all data: docker compose down -v
+# ---------------------------------------------------------------
+
+services:
+  postgres:
+    image: postgres:16            # which Postgres version to download & run
+    container_name: stock_postgres
+    environment:
+      POSTGRES_USER: stock_user        # the database username
+      POSTGRES_PASSWORD: stock_pass     # the database password
+      POSTGRES_DB: stock_db             # the database name created on startup
+    ports:
+      - "5433:5432"               # host port 5433 -> container 5432 (5432 was taken by a local Postgres)
+    volumes:
+      - stock_data:/var/lib/postgresql/data   # keeps data even after restart
+
+  airflow:
+    image: apache/airflow:2.11.1       # official Airflow image, pinned version
+    container_name: stock_airflow
+    depends_on:
+      - postgres
+    command: standalone                 # one-command mode: db init + webserver + scheduler
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor       # simplest executor, fine for one DAG
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"              # don't clutter the UI with example DAGs
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/airflow_dags
+      _AIRFLOW_WWW_USER_USERNAME: admin                  # login for http://localhost:8080
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+      # The pipeline's own dependencies, installed into the Airflow container
+      # at startup so the DAG's tasks (which call extract_load.py and dbt)
+      # have everything they need. Fine for learning; not how you'd do it
+      # in production (you'd build a custom image instead).
+      _PIP_ADDITIONAL_REQUIREMENTS: "yfinance pandas sqlalchemy psycopg2-binary dbt-postgres"
+      # Tell extract_load.py + dbt to reach Postgres via the Docker network
+      # (service name "postgres", internal port 5432) instead of localhost.
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DBT_PROFILES_DIR: /opt/airflow/project/dbt_stock
+    ports:
+      - "8081:8080"                # Airflow UI -> http://localhost:8081 (8080 was taken)
+    volumes:
+      - .:/opt/airflow/project     # mounts this whole repo so the DAG can run its scripts
+      - airflow_home:/opt/airflow  # persists Airflow's own metadata/logs across restarts
+
+volumes:
+  stock_data:
+  airflow_home:

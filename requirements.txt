@@ -1,0 +1,8 @@
+# requirements.txt
+# The Python libraries this project needs.
+# Install them with:  pip install -r requirements.txt
+
+yfinance          # pulls stock price data for free, no API key needed
+pandas            # for cleaning/handling the data (tables in Python)
+sqlalchemy        # lets Python connect to the Postgres database
+psycopg2-binary   # the actual Postgres driver SQLAlchemy uses
